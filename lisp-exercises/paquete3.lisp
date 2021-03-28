@@ -79,3 +79,28 @@
 	   (cond ((null lista) NIL)
 		 ((zerop (mod (first lista) numero)) (Filtra-múltiplos numero (rest lista)))
 		 (T (cons (first lista) (Filtra-múltiplos numero (rest lista))))))
+
+;16.
+;Caso de prueba: (Cambia '(a b c d a e f a g h a) 'a 33)
+;salida: (33 B C D 33 E F 33 G H 33)
+(defun Cambia (lista elem1 elem2)
+	   (cond ((null lista) lista)
+		 ((equal (first lista) elem1) (cons elem2 (Cambia (rest lista) elem1 elem2)))
+		 (T (cons (first lista) (Cambia (rest lista) elem1 elem2)))))
+
+;19.
+;Caso de prueba: (Aplana '(((a b) (c x)) (d e) f) )
+;salida: (A B C X D E F)
+(defun Aplana (lista)
+	   (cond ((null lista) lista)
+		 ((listp (first lista)) (append (Aplana (first lista)) (Aplana (rest lista))))
+		 (T (cons (first lista) (Aplana (rest lista))))))
+
+;20.
+;Caso de prueba: (Elimina '(a b d 5 "abc" T 22.2 30 1) 20)
+;salida: (22.2 30)
+(defun Elimina (lista n)
+	   (if (null lista) lista
+	       (if (numberp (first lista))
+		   (if (<= (first lista) n) (Elimina (rest lista) n) (cons (first lista) (Elimina (rest lista) n)))
+		   (Elimina (rest lista) n))))
