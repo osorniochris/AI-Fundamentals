@@ -141,12 +141,14 @@
 ;salida: T
 (defun Implica (&rest args)
 	   (let ((resultado T))
-	     (if (< (length args) 2) "Se requieren al menos dos argumentos" 
+	     (if (= (length args) 0) T 
+	     	(if (= (length args) 1) 
+	     		(if (equal (first args) T) T NIL)		
 		 (progn 
 	            (when (and (equal (first args) T) (equal (second args) NIL)) (setq resultado NIL))
 	            (loop for i from 2 to (- (length args) 1) do
 		       (if (and (equal resultado T) (equal (nth i args) NIL)) (setq resultado NIL) (setq resultado T)))
-		    resultado))))
+		    resultado)))))
 
 ;15.
 ;Caso de prueba: (Mult '((12 7 3) (4 5 6) (7 8 9)) '((5 8 1 2) (6 7 3 0) (4 5 9 1)) )

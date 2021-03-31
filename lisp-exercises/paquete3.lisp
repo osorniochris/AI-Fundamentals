@@ -172,8 +172,10 @@
 ;salida: T
 ;Función auxiliar para verificar la ariedad
 (defun Implica (&rest args)
-	   (if (< (length args) 2) "Se requieren al menos dos argumentos"  
-	       (Implica-aux T args)))
+	   (if (= (length args) 0) T
+	       (if (= (length args) 1) 
+		   (if (equal T (first args)) T NIL) 
+		   (Implica-aux T args))))
 ;Función recursiva
 (defun Implica-aux (implicacion args)
 	   (if (< (length args) 2) implicacion 
