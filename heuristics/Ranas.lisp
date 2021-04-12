@@ -51,7 +51,7 @@
 ;;        
 ;;        insertar-en-open  
 ;;             :depth-first     Inserta los elementos de la lista en orden inverso y por el inicio de la lista
-;;             :breath-first    Inserta los elementos de la lista en orden normal y por el final de la lista
+;;             :breadth-first    Inserta los elementos de la lista en orden normal y por el final de la lista
 ;;        
 ;;        sacar-de-open  el primer elemento de *open* siempre será el correcto para backtracking
 ;;                       gracias al método de inserción
@@ -61,7 +61,7 @@
      (let ((nodo  (crear-nodo  estado  op index)))
          (cond ((eql  metodo  :depth-first)
 	                  (push  nodo  *open*))
-	           ((eql  metodo  :breath-first)
+	           ((eql  metodo  :breadth-first)
 		          (setq  *open*  (append  *open*  (list nodo))))
 	   	   (T  Nil)))  )
 
@@ -239,7 +239,7 @@
 (defun  blind-search (edo-inicial  edo-meta  metodo)
 "Realiza una búsqueda ciega, por el método especificado y desde un estado inicial hasta un estado meta
     los métodos posibles son:  :depth-first - búsqueda en profundidad
-                               :breath-first - búsqueda en anchura"
+                               :breadth-first - búsqueda en anchura"
   (reiniciar-variables-globales)
   (let ((nodo nil)
 	  (estado nil)
@@ -267,5 +267,5 @@
      
 ;;;=======================================================================================
 ;;;=======================================================================================
-;;(blind-search '((0 1 2) 3 (4 5 6)) '((4 5 6) 3 (0 1 2)) :breath-first )
+;;(blind-search '((0 1 2) 3 (4 5 6)) '((4 5 6) 3 (0 1 2)) :breadth-first )
 (blind-search '((0 1 2) 3 (4 5 6)) '((6 5 4) 3 (2 1 0)) :depth-first )
