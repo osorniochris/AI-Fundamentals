@@ -3,9 +3,9 @@
 ;;;      Resuelve el problema de ranas que cruzan el estanque con búsqueda ciega, a lo profundo y a lo ancho.
 ;;;   
 ;;;      Representación de los estados: 
-;;;         Lista con 3 elementos: una lista para indicar las posiciones de las ranas verdes,
-;;;         un atomo numérico para representar la posición libre en el estanque y una segunda
-;;;         lista para indicar las posiciones de las ranas cafés.
+;;;         Lista con 3 elementos: un cojunto para indicar las posiciones de las ranas verdes,
+;;;         un atomo numérico para representar la posición libre en el estanque y un segundo
+;;;         conjunto para indicar las posiciones de las ranas cafés.
 ;;;         Se consideran las posiciones en el estanque iniciando desde 0.
 ;;;
 ;;;         _v_  _v_  _v_  ___  _c_  _c_  _c_ 
@@ -15,7 +15,8 @@
 ;;;         ((0 1 2) 3 (4 5 6))       ((4 5 6) 3 (0 1 2))
 ;;;
 ;;;         Notar que en el estado meta las ranas de cada color pueden encontrarse en cualquier posición,
-;;;         mientras estén del lado opuesto a su inicio, por lo cual ((6 4 5) 3 (1 0 2)) seguiría siendo meta.
+;;;         y gracias a que están representadas las orillas como conjuntos, mientras estén del lado
+;;;         opuesto a su inicio se considera meta, por lo cual ((6 4 5) 3 (1 0 2)) seguiría siendo meta.
 ;;;
 ;;;      Christopher Osornio Sánchez
 ;;;  Abril, 2021
@@ -150,14 +151,25 @@
 ;;;=======================================================================================
 ;;  estado-conocido?  y  filtrar-conocidos
 ;;        Permiten administrar la memoria de intentos previos
+;;  el estado tiene estructura:  [(<rv1><rv2><rv3>) <libre> (<rc1><rc2><rc3>)],
+;;  el nodo tiene estructura : [<Id> <estado> <id-ancestro> <operador> <index>]
 ;;;=======================================================================================
 (defun  estado-conocido?  (estado  lista-memoria)
 "Busca un estado en una lista de nodos que sirve como memoria de intentos previos
-     el estado tiene estructura:  [(<rv1><rv2><rv3>) <libre> (<rc1><rc2><rc3>)],
-     el nodo tiene estructura : [<Id> <estado> <id-ancestro> <operador> <index>]"  
+Nota: Las comparaciones entre estados se realizan como conjuntos, es decir, son iguales
+      si contienen los mismos elementos en cada orilla"
+     (let* ((edo-mem (second (first  lista-memoria)))
+           (ranas-verdes-mem (sort (copy-seq (first edo-mem)) #'>))
+           (ranas-cafés-mem (sort (copy-seq (third edo-mem)) #'>))
+           (libre-mem (second edo-mem))
+           (ranas-verdes-estado (sort (copy-seq (first estado)) #'>))
+           (ranas-cafés-estado (sort (copy-seq (third estado)) #'>))
+           (libre-estado (second estado))  )
      (cond ((null  lista-memoria)  Nil)
-	        ((equal  estado  (second (first  lista-memoria)))  T)  
-		(T  (estado-conocido?  estado  (rest  lista-memoria))))  )
+	        ((and (equal ranas-verdes-mem ranas-verdes-estado) 
+                  (equal ranas-cafés-mem ranas-cafés-estado) 
+                  (equal libre-mem libre-estado))  T)  
+		(T  (estado-conocido?  estado  (rest  lista-memoria)))) ) )
 
 
 (defun  filtrar-conocidos (lista-estados-y-ops) 
@@ -267,5 +279,5 @@
      
 ;;;=======================================================================================
 ;;;=======================================================================================
-;;(blind-search '((0 1 2) 3 (4 5 6)) '((4 5 6) 3 (0 1 2)) :breadth-first )
-(blind-search '((0 1 2) 3 (4 5 6)) '((6 5 4) 3 (2 1 0)) :depth-first )
+(blind-search '((0 1 2) 3 (4 5 6)) '((4 5 6) 3 (0 1 2)) :breadth-first )
+;(blind-search '((0 1 2) 3 (4 5 6)) '((6 5 4) 3 (2 1 0)) :depth-first )

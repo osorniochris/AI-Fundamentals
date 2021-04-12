@@ -3,8 +3,8 @@
 ;;;      Resuelve el problema de granjero, lobo, oveja y legumbre con búsqueda ciega, a lo profundo y a lo ancho.
 ;;;   
 ;;;      Representación de los estados: 
-;;;         Lista con dos sublistas internas que simbolizan ambas orillas.
-;;;         Cada sublista interna contiene cadenas que simbolizan a cada elemento del problema:
+;;;         Lista con dos conjuntos internos que simbolizan ambas orillas.
+;;;         Cada conjunto (sublista interna) contiene cadenas que simbolizan a cada elemento del problema:
 ;;;             - "G"  -> Granjero
 ;;;             - "LO" -> Lobo
 ;;;             - "O"  -> Oveja
@@ -166,14 +166,21 @@
 ;;;=======================================================================================
 ;;  estado-conocido?  y  filtrar-conocidos
 ;;        Permiten administrar la memoria de intentos previos
+;;     el estado tiene estructura:  [(<entidades del problema>) (<entidades del problema>)],
+;;     el nodo tiene estructura : [<Id> <estado> <id-ancestro> <operador>]
 ;;;=======================================================================================
 (defun  estado-conocido?  (estado  lista-memoria)
 "Busca un estado en una lista de nodos que sirve como memoria de intentos previos
-     el estado tiene estructura:  [(<entidades del problema>) (<entidades del problema>)],
-     el nodo tiene estructura : [<Id> <estado> <id-ancestro> <operador>]"  
+Nota: Las comparaciones entre estados se realizan como conjuntos, es decir, son iguales
+      si contienen los mismos elementos en cada orilla" 
+     (let* ( (estado-memoria (second (first  lista-memoria)))
+             (orilla-izq-mem (sort (copy-seq (first estado-memoria)) #'string-lessp))
+             (orilla-der-mem (sort (copy-seq (second estado-memoria)) #'string-lessp))
+             (orilla-izq-est (sort (copy-seq (first estado)) #'string-lessp))
+             (orilla-der-est (sort (copy-seq (second estado)) #'string-lessp)) ) 
      (cond ((null  lista-memoria)  Nil)
-	        ((equal  estado  (second (first  lista-memoria)))  T)  
-		(T  (estado-conocido?  estado  (rest  lista-memoria))))  )
+	        ( (and (equal orilla-izq-mem orilla-izq-est) (equal orilla-der-mem orilla-der-est))  T)  
+		(T  (estado-conocido?  estado  (rest  lista-memoria))))  ) )
 
 
 (defun  filtrar-conocidos (lista-estados-y-ops) 
@@ -262,7 +269,7 @@
 	   (setq nodo    (sacar-de-open)              ;;Extraer el siguiente nodo de la frontera de búsquea
 		     estado  (second  nodo)               ;;Identificar el estado y operador que contiene
 		     operador  (third  nodo))             
-	   (push  nodo  *memory*)                     ;;Recordarlo antes de que algo pueda pasar...
+	   (push  nodo  *memory*)                     
 	   (cond    ((es-meta?  edo-meta  estado)  
 		                (format  t  "Éxito. Meta encontrada en ~A  intentos~%" (first  nodo))
 		                (desplegar-solucion  (obtener-solucion  nodo))
@@ -275,5 +282,5 @@
 
 ;;;=======================================================================================
 ;;;=======================================================================================
-(blind-search (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :breadth-first )
-;;(blind-search (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :depth-first )
+;(blind-search (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :breadth-first )
+(blind-search (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :depth-first )
