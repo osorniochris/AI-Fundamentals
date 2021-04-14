@@ -28,6 +28,11 @@
 (defparameter  *current-ancestor*  nil)  ;;Id del ancestro común a todos los descendientes que se generen
 (defparameter  *solucion*  nil)  ;;lista donde se almacenará la solución recuperada de la memoria
 
+;;indicadores de desempeño
+(defparameter *nodos-creados* 0)
+(defparameter *nodos-expandidos* 0)
+(defparameter *lon-max-open* 0)
+
 ;;;=======================================================================================
 ;;  crear-nodo (estado  op)  
 ;;      Permite crear un nodo de búsqueda con el [estado] actual y el operador [op]
@@ -36,6 +41,7 @@
 (defun  crear-nodo (estado  op)
   "Construye y regresa un nuevo nodo de búsqueda con el un estado y el operador que lo llevó ahí"
       (incf  *id*)  
+      (incf  *nodos-creados*)
       (list  *id*  estado  *current-ancestor*  (first op) ) )  
 
 ;;;=======================================================================================
@@ -52,9 +58,11 @@
 "Permite insertar nodos de la frontera de búsqueda *open* utilizando el parámetro metodo"
      (let ((nodo  (crear-nodo  estado  op)))
          (cond ((eql  metodo  :depth-first)
-	                  (push  nodo  *open*))
+	                  (progn (push  nodo  *open*) 
+                        (when (> (length *open*) *lon-max-open*) (setq *lon-max-open* (length *open*)))) )
 	           ((eql  metodo  :breadth-first)
-		          (setq  *open*  (append  *open*  (list nodo))))
+		          (progn (setq  *open* (append  *open*  (list nodo)))
+                  (when (> (length *open*) *lon-max-open*) (setq *lon-max-open* (length *open*)) ))) 
 	   	   (T  Nil)))  )
 
 (defun sacar-de-open ()
@@ -156,7 +164,7 @@
 "Obtiene todos los descendientes válidos de un estado, aplicando todos los operadores en *ops* en ese mismo órden"
     (let ((descendientes  nil)
 	    (nuevo-estado  nil))
-        
+        (incf  *nodos-expandidos*) 
         (dolist  (op  *Ops*  descendientes)  
             (when (operador-valido? op estado)
                 (setq  nuevo-estado  (aplicar-operador op estado))
@@ -250,7 +258,10 @@ Nota: Las comparaciones entre estados se realizan como conjuntos, es decir, son 
      (setq  *memory*  nil)
      (setq  *id*  0)
      (setq  *current-ancestor*  nil)
-     (setq  *solucion*  nil))
+     (setq  *solucion*  nil)
+     (setq *nodos-creados* 0)
+     (setq *nodos-expandidos* 0)
+     (setq *lon-max-open* 0) )
 
 (defun  blind-search (edo-inicial  edo-meta  metodo)
 "Realiza una búsqueda ciega, por el método especificado y desde un estado inicial hasta un estado meta
@@ -280,7 +291,20 @@ Nota: Las comparaciones entre estados se realizan como conjuntos, es decir, son 
 			      (loop for  element  in  sucesores  do
 				    (insertar-en-open  (first element)  (second element)  metodo ))))))  )    
 
+(defun busqueda-ciega-con-indicadores (edo-inicial edo-meta metodo)
+    (let ((tiempo1 0) (tiempo2 0) (tiempo-total 0))
+        (setq tiempo1 (get-internal-run-time ) )
+        (blind-search edo-inicial edo-meta metodo)
+        (setq tiempo2 (get-internal-run-time ) )
+        (setq tiempo-total (/ (- tiempo2 tiempo1) internal-time-units-per-second ))
+        (format  t  "~%Indicadores de desempeño~%")
+        (format  t  "Nodos creados: ~A~%" *nodos-creados*)
+        (format  t  "Nodos expandidos: ~A~%" *nodos-expandidos*)
+        (format  t  "Longitud máxima de la frontera de búsqueda: ~A~%" *lon-max-open*)
+        (format  t  "Longitud de la solución: ~A operadores~%" (length *solucion*))
+        (format  t  "Tiempo para encontrar la solución: ~,2f segundos~%" tiempo-total) ) )
+
 ;;;=======================================================================================
 ;;;=======================================================================================
-;(blind-search (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :breadth-first )
-(blind-search (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :depth-first )
+(;busqueda-ciega-con-indicadores (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :breadth-first )
+;(busqueda-ciega-con-indicadores (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :depth-first )
