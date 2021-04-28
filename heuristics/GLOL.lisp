@@ -306,5 +306,5 @@ Nota: Las comparaciones entre estados se realizan como conjuntos, es decir, son 
 
 ;;;=======================================================================================
 ;;;=======================================================================================
-(;busqueda-ciega-con-indicadores (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :breadth-first )
+;(busqueda-ciega-con-indicadores (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :breadth-first )
 ;(busqueda-ciega-con-indicadores (list '("G" "LO" "LE" "O") '() ) (list '() '("G" "LO" "LE" "O") ) :depth-first )
